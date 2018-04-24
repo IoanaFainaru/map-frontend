@@ -9,7 +9,9 @@ export class LoginPageComponent implements OnInit {
 
   loginCredentials: any;
 
-  constructor() { }
+  constructor() {
+    this.loginCredentials = {};
+  }
 
   ngOnInit() {
   }
