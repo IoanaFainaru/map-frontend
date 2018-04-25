@@ -1,21 +1,48 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AmChartsService, AmChart } from '@amcharts/amcharts3-angular';
+
+import { CountriesService } from '../services/countries/countries.service';
+
+declare var jquery: any;
+declare var $: any;
 
 @Component({
   selector: 'app-map-page',
   templateUrl: './map-page.component.html',
   styleUrls: ['./map-page.component.css']
 })
-export class MapPageComponent {
+
+export class MapPageComponent implements OnInit {
 
     private worldMap: AmChart;
+    selectedCountry: any;
 
     constructor(
+        private ngZone: NgZone,
         private router: Router,
-        private AmCharts: AmChartsService
-    ) {
+        private AmCharts: AmChartsService,
+        private countriesService: CountriesService
+    ) { }
 
+    ngOnInit() {
+        this.selectedCountry = {};
+        this.loadWorldMap();
+    }
+
+    // tslint:disable-next-line:use-life-cycle-interface
+    ngOnDestroy() {
+        this.AmCharts.destroyChart(this.worldMap);
+    }
+
+
+    // show/hide top info box
+    toggle() {
+        $('.ui.sidebar.segment').sidebar('toggle');
+    }
+
+
+    loadWorldMap() {
         this.worldMap = this.AmCharts.makeChart('chartdiv', {
             'type': 'map',
             'theme': 'light',
@@ -48,32 +75,41 @@ export class MapPageComponent {
                         const country = this.worldMap.getObjectById(event.chart.selectedObject.id);
                         console.log(`${country.id} - ${country.title}`);
 
-                        // deselect the area by assigning all of the dataProvider as selected object
-                        this.worldMap.selectedObject = this.worldMap.dataProvider;
-                        // toggle showAsSelected
-                        event.mapObject.showAsSelected = !event.mapObject.showAsSelected;
-                        // bring it to an appropriate color
-                        this.worldMap.returnInitialColor(event.mapObject);
-                        // let's build a list of currently selected countries
-                        const selectedCountries = [];
-                        for (let i = 0; i < this.worldMap.dataProvider.areas; i++) {
-                            const area = this.worldMap.dataProvider.areas[i];
-                            if (area.showAsSelected) {
-                                selectedCountries.push( area.title );
-                            }
-                        }
+                        this.clickOnContry(country.id)
+                            .then(data => {
+                                console.log(data);
+
+                                this.ngZone.run(() => {
+                                    this.selectedCountry = data;
+                                });
+                            })
+                            .then(() => {
+                                this.toggle();
+                            })
+                            .catch(err => {
+                                console.warn(err);
+                            });
+
+                        // // deselect the area by assigning all of the dataProvider as selected object
+                        // this.worldMap.selectedObject = this.worldMap.dataProvider;
+                        // // toggle showAsSelected
+                        // event.mapObject.showAsSelected = !event.mapObject.showAsSelected;
+                        // // bring it to an appropriate color
+                        // this.worldMap.returnInitialColor(event.mapObject);
+                        // // let's build a list of currently selected countries
+                        // const selectedCountries = [];
+                        // for (let i = 0; i < this.worldMap.dataProvider.areas; i++) {
+                        //     const area = this.worldMap.dataProvider.areas[i];
+                        //     if (area.showAsSelected) {
+                        //         selectedCountries.push( area.title );
+                        //     }
+                        // }
                     }
                 }
             ]
         });
         // end map config
     }
-
-    // tslint:disable-next-line:use-life-cycle-interface
-    ngOnDestroy() {
-        this.AmCharts.destroyChart(this.worldMap);
-    }
-
 
 
     preSelectCountries(list) {
@@ -82,6 +118,12 @@ export class MapPageComponent {
             area.showAsSelected = true;
             this.worldMap.returnInitialColor(area);
         }
+    }
+
+
+
+    private clickOnContry(countryCode) {
+        return this.countriesService.getCountryInfo(countryCode).toPromise();
     }
 
 

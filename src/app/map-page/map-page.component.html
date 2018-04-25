@@ -1,3 +1,45 @@
-<div>
-    <div id="chartdiv" [style.width.%]="100" [style.height.vh]="100"></div>
+<div class="ui top sidebar segment">
+    <div class="ui center aligned page grid">
+        <div class="one column row">
+            <div class="sixteen wide column">
+                <h3 class="ui header">{{selectedCountry.name}} / {{selectedCountry.alpha3Code}}</h3>
+            </div>
+        </div>
+        <div class="three column divided row">
+            <div class="column"></div>
+            <div class="column">
+                <h5 class="ui header">Capital: {{selectedCountry.capital}}</h5>
+            </div>
+            <div class="column"></div>
+        </div>
+    </div>
 </div>
+
+<div class="ui padded grid">
+    <div class="row">
+        <!-- map -->
+        <div class="twelve wide column">
+            <div id="chartdiv" [style.width.%]="100" [style.height.vh]="90"></div>
+        </div>
+
+        <!-- user-card -->
+        <div class="four wide column">
+            <div class="ui segment">
+                <div class="content">
+                    <h1 class="ui center aligned header">Ioana Fainaru</h1>
+                </div>
+                <div class="ui divider"></div>
+                <div class="extra content">
+                    <div class="ui horizontal statistics">
+                        <div class="ui yellow statistic">
+                            <div class="value">5</div>
+                            <div class="label">Countries Visited</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
