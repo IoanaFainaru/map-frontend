@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AmChartsService, AmChart } from '@amcharts/amcharts3-angular';
 
@@ -10,7 +10,8 @@ declare var $: any;
 @Component({
   selector: 'app-map-page',
   templateUrl: './map-page.component.html',
-  styleUrls: ['./map-page.component.css']
+  styleUrls: ['./map-page.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class MapPageComponent implements OnInit {
@@ -19,8 +20,8 @@ export class MapPageComponent implements OnInit {
     selectedCountry: any;
 
     constructor(
-        private ngZone: NgZone,
         private router: Router,
+        private ref: ChangeDetectorRef,
         private AmCharts: AmChartsService,
         private countriesService: CountriesService
     ) { }
@@ -77,11 +78,9 @@ export class MapPageComponent implements OnInit {
 
                         this.clickOnContry(country.id)
                             .then(data => {
-                                console.log(data);
-
-                                this.ngZone.run(() => {
-                                    this.selectedCountry = data;
-                                });
+                                // console.log(data);
+                                this.selectedCountry = data;
+                                this.ref.detectChanges();
                             })
                             .then(() => {
                                 this.toggle();
@@ -90,20 +89,21 @@ export class MapPageComponent implements OnInit {
                                 console.warn(err);
                             });
 
-                        // // deselect the area by assigning all of the dataProvider as selected object
-                        // this.worldMap.selectedObject = this.worldMap.dataProvider;
-                        // // toggle showAsSelected
-                        // event.mapObject.showAsSelected = !event.mapObject.showAsSelected;
-                        // // bring it to an appropriate color
-                        // this.worldMap.returnInitialColor(event.mapObject);
-                        // // let's build a list of currently selected countries
-                        // const selectedCountries = [];
-                        // for (let i = 0; i < this.worldMap.dataProvider.areas; i++) {
-                        //     const area = this.worldMap.dataProvider.areas[i];
-                        //     if (area.showAsSelected) {
-                        //         selectedCountries.push( area.title );
-                        //     }
-                        // }
+                        // deselect the area by assigning all of the dataProvider as selected object
+                        this.worldMap.selectedObject = this.worldMap.dataProvider;
+                        // toggle showAsSelected
+                        event.mapObject.showAsSelected = !event.mapObject.showAsSelected;
+                        // bring it to an appropriate color
+                        this.worldMap.returnInitialColor(event.mapObject);
+                        // let's build a list of currently selected countries
+                        const selectedCountries = [];
+                        for (let i = 0; i < this.worldMap.dataProvider.areas; i++) {
+                            const area = this.worldMap.dataProvider.areas[i];
+                            if (area.showAsSelected) {
+                                selectedCountries.push( area.title );
+                                console.log(selectedCountries);
+                            }
+                        }
                     }
                 }
             ]
