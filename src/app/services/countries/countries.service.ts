@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
+import { API } from '../../constants/endpoints';
 
 @Injectable()
 export class CountriesService {
@@ -20,6 +21,21 @@ export class CountriesService {
                 }, error => {
                     observer.error(error);
                 });
+        });
+
+    }
+
+
+    getTop10Cities(): Observable<any> {
+
+        return Observable.create(observer => {
+            this.http.get(API.getTop10Cities)
+                .subscribe(response => {
+                    observer.next(response);
+                    observer.complete();
+                });
+        }, err => {
+            console.warn('Error testing api call', err);
         });
 
     }
