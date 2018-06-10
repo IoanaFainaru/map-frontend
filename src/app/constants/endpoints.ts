@@ -1,5 +1,5 @@
 
-const API_URL = `localhost:8080/api`;
+const API_URL = `http://localhost:8080/api`;
 
 export const API = {
     getAllCities: `${API_URL}/city/all`,
