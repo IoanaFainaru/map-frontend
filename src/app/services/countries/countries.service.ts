@@ -33,9 +33,9 @@ export class CountriesService {
                 .subscribe(response => {
                     observer.next(response);
                     observer.complete();
+                }, err => {
+                    observer.error(err);
                 });
-        }, err => {
-            console.warn('Error testing api call', err);
         });
 
     }

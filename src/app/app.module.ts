@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,6 +15,7 @@ import { MapPageComponent } from './map-page/map-page.component';
 
 // Services
 import { CountriesService } from './services/countries/countries.service';
+import { UserService } from './services/user/user.service';
 
 @NgModule({
     declarations: [
@@ -26,11 +27,16 @@ import { CountriesService } from './services/countries/countries.service';
     imports: [
         BrowserModule,
         HttpClientModule,
+        ReactiveFormsModule,
+        // FormControl,
         FormsModule,
         AppRoutingModule,
         AmChartsModule,
     ],
-    providers: [CountriesService],
+    providers: [
+        CountriesService,
+        UserService
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }
