@@ -1,42 +1,48 @@
-<div class="ui top sidebar segment">
-    <div class="ui center aligned page grid">
-        <div class="one column row">
-            <div class="sixteen wide column">
-                <h3 class="ui header">{{selectedCountry.name}}</h3>
-            </div>
-        </div>
-        <div class="three column padded row">
-            <div class="column">
-                <img [src]="selectedCountry.flag" alt="{{selectedCountry.name}}" class="ui image" style="box-shadow: 0 0 5px rgba(0,0,0,0.3);">
-            </div>
-            <div class="column">
-                <h5 class="ui header">Capital: {{selectedCountry.capital}}</h5>
-            </div>
-            <div class="column"></div>
-        </div>
-    </div>
-</div>
 
-<div class="ui padded grid">
+<div class="ui internally padded grid">
     <div class="row">
+        <div class="five wide column">
+            <!-- USER INFO -->
+            <div class="ui segment">
+                <div class="content">
+                    <h1 class="ui center aligned header">Ioana</h1>
+                </div>
+                <div class="ui divider"></div>
+                <div class="extra content">
+                    <div class="ui horizontal statistics">
+                        <div class="ui yellow statistic">
+                            <div class="value" *ngIf="noOfVisitedCountries > 0">{{noOfVisitedCountries}}</div>
+                            <div class="label">
+                                    <span *ngIf="noOfVisitedCountries === 0">no visited countries</span>
+                                    <span *ngIf="noOfVisitedCountries === 1">country visited</span>
+                                    <span *ngIf="noOfVisitedCountries > 1">countries visited</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- !USER INFO -->
+
+            <!-- SELECTED COUNTRY INFO -->
+            <div class="ui segment" *ngIf="selectedCountry">
+                <div class="content">
+                    <h3 class="ui center aligned header">{{selectedCountry.name}} <span *ngIf="selectedCountry.name !== selectedCountry.nativeName">({{selectedCountry.nativeName}})</span></h3>
+                    <div class="ui center aligned" style="margin: auto; max-width: 8em;">
+                        <img [src]="selectedCountry.flag" alt="{{selectedCountry.name}}" class="ui image" style="box-shadow: 0 0 5px rgba(0,0,0,0.3);">
+                    </div>
+                    <div class="ui divider"></div>
+                    <h4>Capital: {{selectedCountry.capital}}</h4>
+                    <h4>Region: {{selectedCountry.region}}</h4>
+                    <h4>Population: {{selectedCountry.population.toLocaleString()}}</h4>
+                </div>
+            </div>
+            <!-- !SELECTED COUNTRY INFO -->
+        </div>
+
         <!-- map -->
-        <div class="sixteen wide column">
+        <div class="eleven wide column">
             <div id="chartdiv" [style.width.%]="100" style="height: calc(100vh - 2em);"></div>
         </div>
-    </div>
-</div>
 
-<div class="ui segment" style="position: absolute; top: 1em; right: 1.5em;">
-    <div class="content">
-        <h1 class="ui center aligned header">Ioana</h1>
-    </div>
-    <div class="ui divider"></div>
-    <div class="extra content">
-        <div class="ui horizontal statistics">
-            <div class="ui yellow statistic">
-                <div class="value">5</div>
-                <div class="label">Countries Visited</div>
-            </div>
-        </div>
     </div>
 </div>

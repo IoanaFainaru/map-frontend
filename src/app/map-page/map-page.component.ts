@@ -1,10 +1,11 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AmChartsService, AmChart } from '@amcharts/amcharts3-angular';
+import { LocalStorage } from '@ngx-pwa/local-storage';
 
 import { CountriesService } from '../services/countries/countries.service';
 
-declare var jquery: any;
+// declare var jquery: any;
 declare var $: any;
 
 @Component({
@@ -18,17 +19,47 @@ export class MapPageComponent implements OnInit {
 
     private worldMap: AmChart;
     selectedCountry: any;
+    noOfVisitedCountries: number;
+    currentUser: any;
 
     constructor(
         private router: Router,
         private ref: ChangeDetectorRef,
         private AmCharts: AmChartsService,
-        private countriesService: CountriesService
-    ) { }
+        private countriesService: CountriesService,
+        private localStorage: LocalStorage
+    ) {
+        // this.selectedCountry = {};
+    }
 
+    /**
+     * @desc when the page starts loading:
+     *      1. get user info
+     *      2. get countries visited by user
+     *      3. load the number of visited countries
+     *      4. load the World Map
+     * @memberof MapPageComponent
+     */
     ngOnInit() {
-        this.selectedCountry = {};
-        this.loadWorldMap();
+
+        this.localStorage.getItem('userData').toPromise()
+            .then(user => {
+                this.currentUser = user;
+            })
+            .then(() => {
+                return this.countriesService.getUserCountries(this.currentUser.id).toPromise();
+            })
+            .then(countriesList => {
+                const countryNames = countriesList.map(country => country.description);
+
+                this.noOfVisitedCountries = countryNames.length;
+                this.ref.detectChanges();
+
+                return countryNames;
+            })
+            .then(countries => {
+                this.loadWorldMap(countries);
+            });
     }
 
     // tslint:disable-next-line:use-life-cycle-interface
@@ -37,13 +68,8 @@ export class MapPageComponent implements OnInit {
     }
 
 
-    // show/hide top info box
-    toggle() {
-        $('.ui.sidebar.segment').sidebar('toggle');
-    }
 
-
-    loadWorldMap() {
+    loadWorldMap(countries) {
         this.worldMap = this.AmCharts.makeChart('chartdiv', {
             'type': 'map',
             'theme': 'light',
@@ -64,9 +90,8 @@ export class MapPageComponent implements OnInit {
                 {
                     'event': 'init',
                     'method': () => {
-                        // TODO
-                        // Get countries from user profile
-                        this.preSelectCountries(['RO', 'HU', 'IT', 'GB', 'ES']);
+                        // load map with user's visited countries
+                        this.preSelectCountries(countries);
                     }
                 },
                 {
@@ -76,14 +101,11 @@ export class MapPageComponent implements OnInit {
                         const country = this.worldMap.getObjectById(event.chart.selectedObject.id);
                         console.log(`${country.id} - ${country.title}`);
 
-                        this.clickOnContry(country.id)
+                        this.countriesService.getCountryInfo(country.id).toPromise()
                             .then(data => {
-                                // console.log(data);
+                                console.log(data);
                                 this.selectedCountry = data;
                                 this.ref.detectChanges();
-                            })
-                            .then(() => {
-                                this.toggle();
                             })
                             .catch(err => {
                                 console.warn(err);
@@ -118,12 +140,6 @@ export class MapPageComponent implements OnInit {
             area.showAsSelected = true;
             this.worldMap.returnInitialColor(area);
         }
-    }
-
-
-
-    private clickOnContry(countryCode) {
-        return this.countriesService.getCountryInfo(countryCode).toPromise();
     }
 
 
