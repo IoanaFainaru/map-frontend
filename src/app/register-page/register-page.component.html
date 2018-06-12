@@ -6,7 +6,6 @@
                 <div class="ui clearing divider"></div>
                 <div class="field" *ngIf="errorMsg">
                     <div class="ui negative message">
-                        <i class="close icon"></i>
                         <div class="header">Ooops!</div>
                         <p>{{errorMsg}}</p>
                     </div>
@@ -27,7 +26,7 @@
                 </div>
                 <div class="field">
                     <label>Password</label>
-                    <input type="password" autocomplete="off" formControlName="password" required>
+                    <input type="password" placeholder="e.g. myPassword123" autocomplete="off" formControlName="password" required>
                 </div>
                 <div class="field">
                     <div class="ui form">
@@ -53,7 +52,7 @@
             <div class="ui bottom attached warning message">
                 <i class="icon help"></i>
                 Already signed up?
-                <a routerLink="/login">Login here</a>
+                <a routerLink="/login">Login here.</a>
             </div>
         </div>
     </div>

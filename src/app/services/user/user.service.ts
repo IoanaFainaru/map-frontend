@@ -37,4 +37,19 @@ export class UserService {
 
     }
 
+
+
+    public getUserData(user): Observable<any> {
+
+        return Observable.create(observer => {
+            this.http.get(`${API.user}/${user.username}`)
+                .subscribe(response => {
+                    observer.next(response);
+                    observer.complete();
+                }, err => {
+                    observer.error(err);
+                });
+        });
+    }
+
 }

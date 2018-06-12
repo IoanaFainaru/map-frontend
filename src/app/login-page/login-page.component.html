@@ -1,20 +1,26 @@
 <div class="authCover ui middle aligned four column centered grid">
     <div class="eight wide column">
         <div class="ui segment">
-            <form #loginForm="ngForm" class="ui form attached fluid segment">
+            <form [formGroup]=loginForm class="ui form attached fluid segment" (submit)="login(loginForm.value)">
                 <h2 class="ui right floated header">My Travel Map</h2>
                 <div class="ui clearing divider"></div>
+                <div class="field" *ngIf="errorMsg">
+                    <div class="ui negative message">
+                        <div class="header">Ooops!</div>
+                        <p>{{errorMsg}}</p>
+                    </div>
+                </div>
                 <div class="two fields">
                     <div class="field">
                         <label>Email</label>
-                        <input placeholder="Email" type="email" name="email" [(ngModel)]="loginCredentials.email">
+                        <input placeholder="e.g. ioana123" type="text" formControlName="username" required autocomplete="username">
                     </div>
                     <div class="field">
                         <label>Password</label>
-                        <input placeholder="Password" type="password" name="password" [(ngModel)]="loginCredentials.password">
+                        <input type="password" placeholder="e.g. myPassword123" autocomplete="off" formControlName="password" required>
                     </div>
                 </div>
-                <button class="ui blue submit button" routerLink="/map" [disabled]="loginForm.invalid">Login</button>
+                <button class="ui blue submit button" type="submit" [disabled]="loginForm.invalid">Login</button>
             </form>
             <div class="ui bottom attached warning message">
                 <i class="icon help"></i>
