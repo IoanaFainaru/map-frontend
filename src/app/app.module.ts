@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { LocalStorageModule } from '@ngx-pwa/local-storage';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -28,7 +29,7 @@ import { UserService } from './services/user/user.service';
         BrowserModule,
         HttpClientModule,
         ReactiveFormsModule,
-        // FormControl,
+        LocalStorageModule,
         FormsModule,
         AppRoutingModule,
         AmChartsModule,
