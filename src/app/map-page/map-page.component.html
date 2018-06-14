@@ -4,8 +4,16 @@
         <div class="five wide column">
             <!-- USER INFO -->
             <div class="ui segment">
-                <div class="content">
-                    <h1 class="ui center aligned header">Ioana</h1>
+                <div class="content" *ngIf="currentUser">
+                    <h2 class="ui center aligned header">
+                        <i class="user circle icon"></i> {{currentUser.name}}
+                    </h2>
+                </div>
+                <div class="ui divider"></div>
+                <div class="extra content">
+                    <button class="fluid ui negative basic button">
+                        <i class="sign in icon"></i> Logout
+                    </button>
                 </div>
                 <div class="ui divider"></div>
                 <div class="extra content">
@@ -31,9 +39,11 @@
                         <img [src]="selectedCountry.flag" alt="{{selectedCountry.name}}" class="ui image" style="box-shadow: 0 0 5px rgba(0,0,0,0.3);">
                     </div>
                     <div class="ui divider"></div>
-                    <h4>Capital: {{selectedCountry.capital}}</h4>
-                    <h4>Region: {{selectedCountry.region}}</h4>
-                    <h4>Population: {{selectedCountry.population.toLocaleString()}}</h4>
+                    <p>Capital: <b>{{selectedCountry.capital}}</b></p>
+                    <p>Region: <b>{{selectedCountry.region}}</b></p>
+                    <p>Lat./Long.: <b>{{selectedCountry.latlng[0]}} / {{selectedCountry.latlng[1]}}</b></p>
+                    <p>Population: <b>{{selectedCountry.population.toLocaleString()}}</b></p>
+                    <p>Currency: <b>{{selectedCountry.currencies[0].code}} ({{selectedCountry.currencies[0].symbol}})</b></p>
                 </div>
             </div>
             <!-- !SELECTED COUNTRY INFO -->

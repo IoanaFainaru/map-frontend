@@ -88,4 +88,33 @@ export class CountriesService {
     }
 
 
+
+    markCountryAsVisited(userId, countryId): Observable<any> {
+
+        return Observable.create(observer => {
+            this.http.post(`${API.user}/${userId}/city/${countryId}`, null)
+                .subscribe(response => {
+                    observer.next(response);
+                    observer.complete();
+                }, err => {
+                    observer.error(err);
+                });
+        });
+    }
+
+
+    deleteVisitedCountry(userId, countryId): Observable<any> {
+
+        return Observable.create(observer => {
+            this.http.delete(`${API.user}/${userId}/city/${countryId}`)
+                .subscribe(response => {
+                    observer.next(response);
+                    observer.complete();
+                }, err => {
+                    observer.error(err);
+                });
+        });
+    }
+
+
 }

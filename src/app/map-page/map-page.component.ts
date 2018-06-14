@@ -29,19 +29,14 @@ export class MapPageComponent implements OnInit {
         private countriesService: CountriesService,
         private localStorage: LocalStorage
     ) {
-        // this.selectedCountry = {};
-    }
 
-    /**
-     * @desc when the page starts loading:
-     *      1. get user info
-     *      2. get countries visited by user
-     *      3. load the number of visited countries
-     *      4. load the World Map
-     * @memberof MapPageComponent
-     */
-    ngOnInit() {
-
+        /**
+         * when the page starts loading:
+         *      1. get user info
+         *      2. get countries visited by user
+         *      3. load the number of visited countries
+         *      4. load the World Map
+         */
         this.localStorage.getItem('userData').toPromise()
             .then(user => {
                 this.currentUser = user;
@@ -62,6 +57,8 @@ export class MapPageComponent implements OnInit {
             });
     }
 
+    ngOnInit() {}
+
     // tslint:disable-next-line:use-life-cycle-interface
     ngOnDestroy() {
         this.AmCharts.destroyChart(this.worldMap);
@@ -72,9 +69,10 @@ export class MapPageComponent implements OnInit {
     loadWorldMap(countries) {
         this.worldMap = this.AmCharts.makeChart('chartdiv', {
             'type': 'map',
-            'theme': 'light',
+            'theme': 'dark',
             'projection': 'mercator',
             'showAreasInList': true,
+            'panEventsEnabled': true,
             'autoDisplay': true,
             'zoomDuration': 0.2,
             'dataProvider': {
@@ -82,9 +80,12 @@ export class MapPageComponent implements OnInit {
                 'getAreasFromMap': true
             },
             'areasSettings': {
+                'autoZoom': true,
                 'color': '#ccc',
-                'selectedColor': '#70C1B3',
-                'selectable': true
+                // 'selectedColor': '#FC5185',
+                'selectedColor': this.getRandomColor(),
+                'rollOverOutlineColor': '#FC5185',
+                'selectable': (this.currentUser.type === 'TOURIST') ? true : false
             },
             'listeners': [
                 {
@@ -97,35 +98,7 @@ export class MapPageComponent implements OnInit {
                 {
                     'event': 'clickMapObject',
                     'method': (event) => {
-
-                        const country = this.worldMap.getObjectById(event.chart.selectedObject.id);
-                        console.log(`${country.id} - ${country.title}`);
-
-                        this.countriesService.getCountryInfo(country.id).toPromise()
-                            .then(data => {
-                                console.log(data);
-                                this.selectedCountry = data;
-                                this.ref.detectChanges();
-                            })
-                            .catch(err => {
-                                console.warn(err);
-                            });
-
-                        // deselect the area by assigning all of the dataProvider as selected object
-                        this.worldMap.selectedObject = this.worldMap.dataProvider;
-                        // toggle showAsSelected
-                        event.mapObject.showAsSelected = !event.mapObject.showAsSelected;
-                        // bring it to an appropriate color
-                        this.worldMap.returnInitialColor(event.mapObject);
-                        // let's build a list of currently selected countries
-                        const selectedCountries = [];
-                        for (let i = 0; i < this.worldMap.dataProvider.areas; i++) {
-                            const area = this.worldMap.dataProvider.areas[i];
-                            if (area.showAsSelected) {
-                                selectedCountries.push( area.title );
-                                console.log(selectedCountries);
-                            }
-                        }
+                        this.handleActionsonMap(event);
                     }
                 }
             ]
@@ -140,6 +113,96 @@ export class MapPageComponent implements OnInit {
             area.showAsSelected = true;
             this.worldMap.returnInitialColor(area);
         }
+    }
+
+
+
+    handleActionsonMap(event) {
+
+        const country = this.worldMap.getObjectById(event.chart.selectedObject.id);
+        console.log(`${country.id} - ${country.title}`);
+
+        // get info of selected country
+        this.countriesService.getCountryInfo(country.id).toPromise()
+            .then(data => {
+                // console.log(data);
+                this.selectedCountry = data;
+                this.ref.detectChanges();
+            })
+            .catch(err => {
+                console.warn(err);
+            })
+            .then(() => {
+                // deselect the area by assigning all of the dataProvider as selected object
+                this.worldMap.selectedObject = this.worldMap.dataProvider;
+
+                // toggle showAsSelected
+                event.mapObject.showAsSelected = !event.mapObject.showAsSelected;
+
+                // bring it to an appropriate color
+                this.worldMap.returnInitialColor(event.mapObject);
+
+                // let's build a list of currently selected countries
+                const selectedCountries = [];
+                // tslint:disable-next-line:forin
+                for (const i in this.worldMap.dataProvider.areas) {
+                    const area = this.worldMap.dataProvider.areas[i];
+                    if (area.showAsSelected) {
+                        // set a new color only if it wasn't assigned before
+                        area.selectedColor = area.selectedColor || this.getRandomColor();
+                        selectedCountries.push(area.title);
+                    }
+                }
+
+                this.worldMap.validateNow();
+
+            })
+            .then(() => {
+                this.countriesService.markCountryAsVisited(this.currentUser.id, this.selectedCountry.numericCode)
+                    .toPromise()
+                    .then(() => {
+                        // country added
+                        return this.countriesService.getUserCountries(this.currentUser.id).toPromise();
+                    })
+                    .then(countriesList => {
+                        // tslint:disable-next-line:no-shadowed-variable
+                        const countryNames = countriesList.map(country => country.description);
+
+                        this.noOfVisitedCountries = countryNames.length;
+                        this.ref.detectChanges();
+
+                        return countryNames;
+                    })
+                    .catch(() => {
+                        // country already exists, remove it
+                        this.countriesService.deleteVisitedCountry(this.currentUser.id, this.selectedCountry.numericCode)
+                            .toPromise()
+                            .then(() => { this.ref.detectChanges(); })
+                            .catch(() => { this.ref.detectChanges(); })
+                            .then(() => {
+                                return this.countriesService.getUserCountries(this.currentUser.id).toPromise();
+                            })
+                            .then(countriesList => {
+                                // tslint:disable-next-line:no-shadowed-variable
+                                const countryNames = countriesList.map(country => country.description);
+
+                                this.noOfVisitedCountries = countryNames.length;
+                                this.ref.detectChanges();
+
+                                return countryNames;
+                            });
+                    });
+            });
+    }
+
+
+    getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
     }
 
 
