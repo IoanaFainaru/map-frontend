@@ -21,6 +21,7 @@ export class MapPageComponent implements OnInit {
     selectedCountry: any;
     noOfVisitedCountries: number;
     currentUser: any;
+    mostVisitedCountries: any[];
 
     constructor(
         private router: Router,
@@ -29,6 +30,7 @@ export class MapPageComponent implements OnInit {
         private countriesService: CountriesService,
         private localStorage: LocalStorage
     ) {
+        this.currentUser = {};
 
         /**
          * when the page starts loading:
@@ -42,18 +44,47 @@ export class MapPageComponent implements OnInit {
                 this.currentUser = user;
             })
             .then(() => {
-                return this.countriesService.getUserCountries(this.currentUser.id).toPromise();
-            })
-            .then(countriesList => {
-                const countryNames = countriesList.map(country => country.description);
+                if (this.currentUser.type === 'TOURIST') {
+                    // normal user
+                    this.countriesService.getUserCountries(this.currentUser.id).toPromise()
+                    .then(countriesList => {
+                        const countryNames = countriesList.map(country => country.description);
 
-                this.noOfVisitedCountries = countryNames.length;
-                this.ref.detectChanges();
+                        this.noOfVisitedCountries = countryNames.length;
+                        this.ref.detectChanges();
 
-                return countryNames;
+                        return countryNames;
+                    })
+                    .then(countries => {
+                        this.loadWorldMap(countries);
+                    })
+                    .catch(err => {
+                        console.warn(err);
+
+                    });
+                } else {
+                    //  company
+                    this.countriesService.getTop10Cities().toPromise()
+                        .then(countriesList => {
+
+                            this.mostVisitedCountries = countriesList;
+                            const countryNames = countriesList.map(country => country.description);
+
+                            this.noOfVisitedCountries = countryNames.length;
+                            this.ref.detectChanges();
+
+                            return countryNames;
+                        })
+                        .then(countries => {
+                            this.loadWorldMap(countries);
+                        })
+                        .catch(err => {
+                            console.warn(err);
+                        });
+                }
             })
-            .then(countries => {
-                this.loadWorldMap(countries);
+            .catch(err => {
+                console.warn(err);
             });
     }
 
@@ -80,7 +111,7 @@ export class MapPageComponent implements OnInit {
                 'getAreasFromMap': true
             },
             'areasSettings': {
-                'autoZoom': true,
+                'autoZoom': false,
                 'color': '#ccc',
                 // 'selectedColor': '#FC5185',
                 'selectedColor': this.getRandomColor(),
@@ -203,6 +234,12 @@ export class MapPageComponent implements OnInit {
             color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
+    }
+
+
+
+    logout() {
+        this.router.navigateByUrl('/login');
     }
 
 

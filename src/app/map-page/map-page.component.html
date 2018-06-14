@@ -1,7 +1,7 @@
 
 <div class="ui internally padded grid">
     <div class="row">
-        <div class="five wide column">
+        <div class="five wide column" style="max-height: calc(100vh - 2em); overflow: scroll; box-sizing: border-box;">
             <!-- USER INFO -->
             <div class="ui segment">
                 <div class="content" *ngIf="currentUser">
@@ -10,13 +10,17 @@
                     </h2>
                 </div>
                 <div class="ui divider"></div>
+
+                <!-- USER CONTROLS (LOGOUT) -->
                 <div class="extra content">
                     <button class="fluid ui negative basic button">
                         <i class="sign in icon"></i> Logout
                     </button>
                 </div>
-                <div class="ui divider"></div>
-                <div class="extra content">
+                <!-- !USER CONTROLS (LOGOUT) -->
+
+                <div class="ui divider" *ngIf="currentUser.type === 'TOURIST'"></div>
+                <div class="extra content" *ngIf="currentUser.type === 'TOURIST'">
                     <div class="ui horizontal statistics">
                         <div class="ui yellow statistic">
                             <div class="value" *ngIf="noOfVisitedCountries > 0">{{noOfVisitedCountries}}</div>
@@ -32,7 +36,7 @@
             <!-- !USER INFO -->
 
             <!-- SELECTED COUNTRY INFO -->
-            <div class="ui segment" *ngIf="selectedCountry">
+            <div class="ui segment" *ngIf="selectedCountry || currentUser.type === 'TOURIST'">
                 <div class="content">
                     <h3 class="ui center aligned header">{{selectedCountry.name}} <span *ngIf="selectedCountry.name !== selectedCountry.nativeName">({{selectedCountry.nativeName}})</span></h3>
                     <div class="ui center aligned" style="margin: auto; max-width: 8em;">
@@ -47,6 +51,28 @@
                 </div>
             </div>
             <!-- !SELECTED COUNTRY INFO -->
+
+            <!-- TOP VISITED COUNTRIES -->
+            <div class="ui segment" *ngIf="mostVisitedCountries && currentUser.type === 'COMPANY'">
+                <div class="content">
+                    <h3 class="ui center aligned header">
+                        <i class="sort numeric down icon"></i> Top 10 visited countries
+                    </h3>
+
+                    <div class="ui divider"></div>
+
+                    <div class="ui middle aligned divided list">
+                        <div class="item" *ngFor="let country of mostVisitedCountries; index as i;">
+                            <img [src]="'http://www.countryflags.io/' + (country.description | lowercase) + '/flat/64.png'" alt="" class="ui avatar image">
+                            <!-- <i class="flag" [ngClass]="(country.description | lowercase)"></i> -->
+                            <div class="content">
+                                <div class="header">{{i + 1}}. {{country.name}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- !TOP VISITED COUNTRIES -->
         </div>
 
         <!-- map -->
